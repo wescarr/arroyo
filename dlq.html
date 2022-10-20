@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dead Letter Queue &mdash; Arroyo  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Committing offsets" href="offsets.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Arroyo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getstarted.html">Getting started with Arroyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="what_for.html">What is Arroyo for?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Arroyo Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategies.html">Processing Strategies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="offsets.html">Committing offsets</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dead Letter Queue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Arroyo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Dead Letter Queue</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/dlq.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-arroyo.processing.strategies.dead_letter_queue">
+<span id="dead-letter-queue"></span><h1>Dead Letter Queue<a class="headerlink" href="#module-arroyo.processing.strategies.dead_letter_queue" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.CountInvalidMessagePolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.dead_letter_queue.</span></span><span class="sig-name descname"><span class="pre">CountInvalidMessagePolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">next_policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seconds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.CountInvalidMessagePolicy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy" title="arroyo.processing.strategies.dead_letter_queue.policies.abstract.DeadLetterQueuePolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeadLetterQueuePolicy</span></code></a></p>
+<p>Does not raise invalid messages up to a certain limit per time unit window
+in seconds. This window is 1 minute by default. The exception associated with
+the invalid messages is raised for all incoming invalid messages which go past
+this limit.</p>
+<p>A <cite>next_policy</cite> (a DLQ Policy) must be passed to handle any exception which
+remains within the per second limit. This gives full control over what happens
+to exceptions within the limit.</p>
+<p>A saved state in the form <cite>[(&lt;timestamp: int&gt;, &lt;hits: int&gt;), …]</cite> can be passed
+on init to load a previously saved state. This state should be aggregated to
+1 second buckets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>next_policy</strong> (<a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy" title="arroyo.processing.strategies.dead_letter_queue.policies.abstract.DeadLetterQueuePolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeadLetterQueuePolicy</span></code></a>) – </p></li>
+<li><p><strong>limit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>seconds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>load_state</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]]) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.CountInvalidMessagePolicy.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.CountInvalidMessagePolicy.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close the policy from handling any new messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.CountInvalidMessagePolicy.handle_invalid_messages">
+<span class="sig-name descname"><span class="pre">handle_invalid_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.CountInvalidMessagePolicy.handle_invalid_messages" title="Permalink to this definition"></a></dt>
+<dd><p>Decide what to do with invalid messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>e</strong> (<a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessages" title="arroyo.processing.strategies.dead_letter_queue.invalid_messages.InvalidMessages"><code class="xref py py-class docutils literal notranslate"><span class="pre">InvalidMessages</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.CountInvalidMessagePolicy.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.CountInvalidMessagePolicy.join" title="Permalink to this definition"></a></dt>
+<dd><p>Cleanup any asynchronous tasks that may be running.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.CountInvalidMessagePolicy.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.CountInvalidMessagePolicy.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Immediately close this policy, abandoning any work in
+progress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.dead_letter_queue.</span></span><span class="sig-name descname"><span class="pre">DeadLetterQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">next_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="strategies.html#arroyo.processing.strategies.abstract.ProcessingStrategy" title="arroyo.processing.strategies.abstract.ProcessingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingStrategy</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">TPayload</span></code>]</p>
+<p>DLQ Processing Step.</p>
+<p>Attempts to submit a given message to the next processing step,
+handling <cite>InvalidMessages</cite> according to the given Policy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>next_step</strong> (<a class="reference internal" href="strategies.html#arroyo.processing.strategies.abstract.ProcessingStrategy" title="arroyo.processing.strategies.abstract.ProcessingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingStrategy</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p></li>
+<li><p><strong>policy</strong> (<a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy" title="arroyo.processing.strategies.dead_letter_queue.policies.abstract.DeadLetterQueuePolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeadLetterQueuePolicy</span></code></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close this instance. No more messages should be accepted by the
+instance after this method has been called.</p>
+<p>This method should not block. Once this strategy instance has
+finished processing (or discarded) all messages that were submitted
+prior to this method being called, the strategy should commit its
+partition offsets and release any resources that will no longer be
+used (threads, processes, sockets, files, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue.join" title="Permalink to this definition"></a></dt>
+<dd><p>Block until the processing strategy has completed all previously
+submitted work, or the provided timeout has been reached. This method
+should be called after <code class="docutils literal notranslate"><span class="pre">close</span></code> to provide a graceful shutdown.</p>
+<p>This method is called synchronously by the stream processor during
+assignment revocation, and blocks the assignment from being released
+until this function exits, allowing any work in progress to be
+completed and committed before the continuing the rebalancing
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue.poll">
+<span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue.poll" title="Permalink to this definition"></a></dt>
+<dd><p>Poll the processor to check on the status of asynchronous tasks or
+perform other scheduled work.</p>
+<p>This method is called on each consumer loop iteration, so this method
+should not be used to perform work that may block for a significant
+amount of time and block the progress of the consumer or exceed the
+consumer poll interval timeout.</p>
+<p>This method may raise exceptions that were thrown by asynchronous
+tasks since the previous call to <code class="docutils literal notranslate"><span class="pre">poll</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue.submit" title="Permalink to this definition"></a></dt>
+<dd><p>Submit a message for processing.</p>
+<p>Messages may be processed synchronously or asynchronously, depending
+on the implementation of the processing strategy. Callers of this
+method should not assume that this method returning successfully
+implies that the message was successfully processed.</p>
+<p>If the processing strategy is unable to accept a message (due to it
+being at or over capacity, for example), this method will raise a
+<code class="docutils literal notranslate"><span class="pre">MessageRejected</span></code> exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueue.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Close the processing strategy immediately, abandoning any work in
+progress. No more messages should be accepted by the instance after
+this method has been called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.dead_letter_queue.</span></span><span class="sig-name descname"><span class="pre">DeadLetterQueuePolicy</span></span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>A DLQ Policy defines how to handle invalid messages.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy.close">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close the policy from handling any new messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy.handle_invalid_messages">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle_invalid_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy.handle_invalid_messages" title="Permalink to this definition"></a></dt>
+<dd><p>Decide what to do with invalid messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>e</strong> (<a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessages" title="arroyo.processing.strategies.dead_letter_queue.invalid_messages.InvalidMessages"><code class="xref py py-class docutils literal notranslate"><span class="pre">InvalidMessages</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy.join">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy.join" title="Permalink to this definition"></a></dt>
+<dd><p>Cleanup any asynchronous tasks that may be running.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy.terminate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Immediately close this policy, abandoning any work in
+progress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.IgnoreInvalidMessagePolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.dead_letter_queue.</span></span><span class="sig-name descname"><span class="pre">IgnoreInvalidMessagePolicy</span></span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.IgnoreInvalidMessagePolicy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy" title="arroyo.processing.strategies.dead_letter_queue.policies.abstract.DeadLetterQueuePolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeadLetterQueuePolicy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.IgnoreInvalidMessagePolicy.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.IgnoreInvalidMessagePolicy.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close the policy from handling any new messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.IgnoreInvalidMessagePolicy.handle_invalid_messages">
+<span class="sig-name descname"><span class="pre">handle_invalid_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.IgnoreInvalidMessagePolicy.handle_invalid_messages" title="Permalink to this definition"></a></dt>
+<dd><p>Decide what to do with invalid messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>e</strong> (<a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessages" title="arroyo.processing.strategies.dead_letter_queue.invalid_messages.InvalidMessages"><code class="xref py py-class docutils literal notranslate"><span class="pre">InvalidMessages</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.IgnoreInvalidMessagePolicy.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.IgnoreInvalidMessagePolicy.join" title="Permalink to this definition"></a></dt>
+<dd><p>Cleanup any asynchronous tasks that may be running.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.IgnoreInvalidMessagePolicy.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.IgnoreInvalidMessagePolicy.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Immediately close this policy, abandoning any work in
+progress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.dead_letter_queue.</span></span><span class="sig-name descname"><span class="pre">InvalidKafkaMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumer_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessage" title="arroyo.processing.strategies.dead_letter_queue.invalid_messages.InvalidMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">InvalidMessage</span></code></a></p>
+<p>A dataclass to generally represent a bad Kafka message.
+A <cite>reason</cite> can be provided for debugging purposes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>payload</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]) – </p></li>
+<li><p><strong>timestamp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>) – </p></li>
+<li><p><strong>topic</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – </p></li>
+<li><p><strong>consumer_group</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – </p></li>
+<li><p><strong>partition</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>offset</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>headers</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]]) – </p></li>
+<li><p><strong>key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]) – </p></li>
+<li><p><strong>reason</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.consumer_group">
+<span class="sig-name descname"><span class="pre">consumer_group</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.consumer_group" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.headers">
+<span class="sig-name descname"><span class="pre">headers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.headers" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.key">
+<span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.key" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.offset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.partition">
+<span class="sig-name descname"><span class="pre">partition</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.partition" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.payload">
+<span class="sig-name descname"><span class="pre">payload</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.payload" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.reason">
+<span class="sig-name descname"><span class="pre">reason</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.reason" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.timestamp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.topic">
+<span class="sig-name descname"><span class="pre">topic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidKafkaMessage.topic" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.dead_letter_queue.</span></span><span class="sig-name descname"><span class="pre">InvalidMessage</span></span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessage" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>A class representing a bad message to be passed to the DLQ.</p>
+<p>An <cite>InvalidMessages</cite> exception should be raised containing
+one or more <cite>InvalidMessage</cite> objects in order to actually
+pass data to the DLQ.</p>
+<p>If a produce policy is configured on the relevant DLQ, a
+message containing the dictionary representation of this invalid
+message will be produced to the topic configured via the policy.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidMessage.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessage.to_bytes" title="Permalink to this definition"></a></dt>
+<dd><p>JSON encoded representation of this Invalid Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidMessages">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.dead_letter_queue.</span></span><span class="sig-name descname"><span class="pre">InvalidMessages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessages" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>An exception to be thrown to pass bad messages to the DLQ
+so they are handled correctly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>messages</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessage" title="arroyo.processing.strategies.dead_letter_queue.invalid_messages.InvalidMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">InvalidMessage</span></code></a>]) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidRawMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.dead_letter_queue.</span></span><span class="sig-name descname"><span class="pre">InvalidRawMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidRawMessage" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessage" title="arroyo.processing.strategies.dead_letter_queue.invalid_messages.InvalidMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">InvalidMessage</span></code></a></p>
+<p>A dataclass to generally represent any kind of bad message.
+A <cite>reason</cite> can be provided for debugging purposes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>payload</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]) – </p></li>
+<li><p><strong>reason</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidRawMessage.payload">
+<span class="sig-name descname"><span class="pre">payload</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidRawMessage.payload" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.InvalidRawMessage.reason">
+<span class="sig-name descname"><span class="pre">reason</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.InvalidRawMessage.reason" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.ProduceInvalidMessagePolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.dead_letter_queue.</span></span><span class="sig-name descname"><span class="pre">ProduceInvalidMessagePolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">producer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dead_letter_topic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.ProduceInvalidMessagePolicy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy" title="arroyo.processing.strategies.dead_letter_queue.policies.abstract.DeadLetterQueuePolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeadLetterQueuePolicy</span></code></a></p>
+<p>Produces given InvalidMessages to a dead letter topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>producer</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Producer</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">KafkaPayload</span></code>]) – </p></li>
+<li><p><strong>dead_letter_topic</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Topic</span></code>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.ProduceInvalidMessagePolicy.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.ProduceInvalidMessagePolicy.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close the policy from handling any new messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.ProduceInvalidMessagePolicy.handle_invalid_messages">
+<span class="sig-name descname"><span class="pre">handle_invalid_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.ProduceInvalidMessagePolicy.handle_invalid_messages" title="Permalink to this definition"></a></dt>
+<dd><p>Produces a message to the given dead letter topic for each
+invalid message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>e</strong> (<a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessages" title="arroyo.processing.strategies.dead_letter_queue.invalid_messages.InvalidMessages"><code class="xref py py-class docutils literal notranslate"><span class="pre">InvalidMessages</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.ProduceInvalidMessagePolicy.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.ProduceInvalidMessagePolicy.join" title="Permalink to this definition"></a></dt>
+<dd><p>Cleanup any asynchronous tasks that may be running.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.ProduceInvalidMessagePolicy.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.ProduceInvalidMessagePolicy.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Immediately close this policy, abandoning any work in
+progress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.RaiseInvalidMessagePolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.dead_letter_queue.</span></span><span class="sig-name descname"><span class="pre">RaiseInvalidMessagePolicy</span></span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.RaiseInvalidMessagePolicy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.DeadLetterQueuePolicy" title="arroyo.processing.strategies.dead_letter_queue.policies.abstract.DeadLetterQueuePolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeadLetterQueuePolicy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.RaiseInvalidMessagePolicy.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.RaiseInvalidMessagePolicy.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close the policy from handling any new messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.RaiseInvalidMessagePolicy.handle_invalid_messages">
+<span class="sig-name descname"><span class="pre">handle_invalid_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.RaiseInvalidMessagePolicy.handle_invalid_messages" title="Permalink to this definition"></a></dt>
+<dd><p>Decide what to do with invalid messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>e</strong> (<a class="reference internal" href="#arroyo.processing.strategies.dead_letter_queue.InvalidMessages" title="arroyo.processing.strategies.dead_letter_queue.invalid_messages.InvalidMessages"><code class="xref py py-class docutils literal notranslate"><span class="pre">InvalidMessages</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.RaiseInvalidMessagePolicy.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.RaiseInvalidMessagePolicy.join" title="Permalink to this definition"></a></dt>
+<dd><p>Cleanup any asynchronous tasks that may be running.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.dead_letter_queue.RaiseInvalidMessagePolicy.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.dead_letter_queue.RaiseInvalidMessagePolicy.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Immediately close this policy, abandoning any work in
+progress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="offsets.html" class="btn btn-neutral float-left" title="Committing offsets" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Sentry Team and Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

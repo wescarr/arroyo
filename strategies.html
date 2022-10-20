@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Processing Strategies &mdash; Arroyo  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Committing offsets" href="offsets.html" />
+    <link rel="prev" title="Arroyo Architecture" href="architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Arroyo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getstarted.html">Getting started with Arroyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="what_for.html">What is Arroyo for?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Arroyo Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Processing Strategies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#processing-strategy-interface">Processing Strategy Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transformers">Transformers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-arroyo.processing.strategies.filter">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#collectors">Collectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-arroyo.processing.strategies.run_task">Task Runners</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-arroyo.processing.strategies.produce">Producers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="offsets.html">Committing offsets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlq.html">Dead Letter Queue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Arroyo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Processing Strategies</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/strategies.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="processing-strategies">
+<h1>Processing Strategies<a class="headerlink" href="#processing-strategies" title="Permalink to this heading"></a></h1>
+<p>The processing strategies are the components to be wired together to
+build a consumer.</p>
+<section id="processing-strategy-interface">
+<h2>Processing Strategy Interface<a class="headerlink" href="#processing-strategy-interface" title="Permalink to this heading"></a></h2>
+<p>The abstract interface to be implemented when creating a new Processing Strategy</p>
+<span class="target" id="module-arroyo.processing.strategies.abstract"></span><dl class="py exception">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.abstract.MessageRejected">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.abstract.</span></span><span class="sig-name descname"><span class="pre">MessageRejected</span></span><a class="headerlink" href="#arroyo.processing.strategies.abstract.MessageRejected" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.abstract.ProcessingStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.abstract.</span></span><span class="sig-name descname"><span class="pre">ProcessingStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.abstract.ProcessingStrategy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">TPayload</span></code>]</p>
+<p>A processing strategy defines how a stream processor processes messages
+during the course of a single assignment. The processor is instantiated
+when the assignment is received, and closed when the assignment is
+revoked.</p>
+<p>This interface is intentionally not prescriptive, and affords a
+significant degree of flexibility for the various implementations.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.abstract.ProcessingStrategy.close">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.abstract.ProcessingStrategy.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close this instance. No more messages should be accepted by the
+instance after this method has been called.</p>
+<p>This method should not block. Once this strategy instance has
+finished processing (or discarded) all messages that were submitted
+prior to this method being called, the strategy should commit its
+partition offsets and release any resources that will no longer be
+used (threads, processes, sockets, files, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.abstract.ProcessingStrategy.join">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.abstract.ProcessingStrategy.join" title="Permalink to this definition"></a></dt>
+<dd><p>Block until the processing strategy has completed all previously
+submitted work, or the provided timeout has been reached. This method
+should be called after <code class="docutils literal notranslate"><span class="pre">close</span></code> to provide a graceful shutdown.</p>
+<p>This method is called synchronously by the stream processor during
+assignment revocation, and blocks the assignment from being released
+until this function exits, allowing any work in progress to be
+completed and committed before the continuing the rebalancing
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.abstract.ProcessingStrategy.poll">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.abstract.ProcessingStrategy.poll" title="Permalink to this definition"></a></dt>
+<dd><p>Poll the processor to check on the status of asynchronous tasks or
+perform other scheduled work.</p>
+<p>This method is called on each consumer loop iteration, so this method
+should not be used to perform work that may block for a significant
+amount of time and block the progress of the consumer or exceed the
+consumer poll interval timeout.</p>
+<p>This method may raise exceptions that were thrown by asynchronous
+tasks since the previous call to <code class="docutils literal notranslate"><span class="pre">poll</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.abstract.ProcessingStrategy.submit">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.abstract.ProcessingStrategy.submit" title="Permalink to this definition"></a></dt>
+<dd><p>Submit a message for processing.</p>
+<p>Messages may be processed synchronously or asynchronously, depending
+on the implementation of the processing strategy. Callers of this
+method should not assume that this method returning successfully
+implies that the message was successfully processed.</p>
+<p>If the processing strategy is unable to accept a message (due to it
+being at or over capacity, for example), this method will raise a
+<code class="docutils literal notranslate"><span class="pre">MessageRejected</span></code> exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.abstract.ProcessingStrategy.terminate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.abstract.ProcessingStrategy.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Close the processing strategy immediately, abandoning any work in
+progress. No more messages should be accepted by the instance after
+this method has been called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.abstract.ProcessingStrategyFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.abstract.</span></span><span class="sig-name descname"><span class="pre">ProcessingStrategyFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.abstract.ProcessingStrategyFactory" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">TPayload</span></code>]</p>
+<p>A ProcessingStrategyFactory is used to wrap a series of
+ProcessingStrategy steps, and calls <cite>create_with_partitions</cite>
+to instantiate the ProcessingStrategy on partition assignment
+or partition revocation if the strategy needs to be recreated.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.abstract.ProcessingStrategyFactory.create_with_partitions">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_with_partitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partitions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.abstract.ProcessingStrategyFactory.create_with_partitions" title="Permalink to this definition"></a></dt>
+<dd><p>Instantiate and return a <code class="docutils literal notranslate"><span class="pre">ProcessingStrategy</span></code> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>commit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Commit</span></code>) – A function that accepts a mapping of <code class="docutils literal notranslate"><span class="pre">Partition</span></code> instances to offset values that should be committed.</p></li>
+<li><p><strong>partitions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Partition</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – A mapping of a <code class="docutils literal notranslate"><span class="pre">Partition</span></code> to it’s most recent offset.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#arroyo.processing.strategies.abstract.ProcessingStrategy" title="arroyo.processing.strategies.abstract.ProcessingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingStrategy</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="transformers">
+<h2>Transformers<a class="headerlink" href="#transformers" title="Permalink to this heading"></a></h2>
+<p>Transformation steps. They transform the messages one by one provided a processing
+function.</p>
+<span class="target" id="module-arroyo.processing.strategies.transform"></span><dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.BatchBuilder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.transform.</span></span><span class="sig-name descname"><span class="pre">BatchBuilder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_batch_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.BatchBuilder" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch</strong> (<a class="reference internal" href="#arroyo.processing.strategies.transform.MessageBatch" title="arroyo.processing.strategies.transform.MessageBatch"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageBatch</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p></li>
+<li><p><strong>max_batch_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>max_batch_time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.BatchBuilder.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.BatchBuilder.append" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.BatchBuilder.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.BatchBuilder.build" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#arroyo.processing.strategies.transform.MessageBatch" title="arroyo.processing.strategies.transform.MessageBatch"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageBatch</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.BatchBuilder.ready">
+<span class="sig-name descname"><span class="pre">ready</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.BatchBuilder.ready" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ChildProcessTerminated">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.transform.</span></span><span class="sig-name descname"><span class="pre">ChildProcessTerminated</span></span><a class="headerlink" href="#arroyo.processing.strategies.transform.ChildProcessTerminated" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.MessageBatch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.transform.</span></span><span class="sig-name descname"><span class="pre">MessageBatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.MessageBatch" title="Permalink to this definition"></a></dt>
+<dd><p>Contains a sequence of <code class="docutils literal notranslate"><span class="pre">Message</span></code> instances that are intended to be
+shared across processes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>block</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SharedMemory</span></code>) – </p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.MessageBatch.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.MessageBatch.append" title="Permalink to this definition"></a></dt>
+<dd><p>Add a message to this batch.</p>
+<p>Internally, this serializes the message using <code class="docutils literal notranslate"><span class="pre">pickle</span></code> (effectively
+creating a copy of the input), writing any data that supports
+out-of-band buffer transfer via the <code class="docutils literal notranslate"><span class="pre">PickleBuffer</span></code> interface to the
+shared memory block associated with this batch. If there is not
+enough space in the shared memory block to write all buffers to be
+transferred out-of-band, this method will raise a <code class="docutils literal notranslate"><span class="pre">ValueTooLarge</span></code>
+error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.MessageBatch.get_content_size">
+<span class="sig-name descname"><span class="pre">get_content_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.MessageBatch.get_content_size" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ParallelTransformResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.transform.</span></span><span class="sig-name descname"><span class="pre">ParallelTransformResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">next_index_to_process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_messages_transformed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invalid_messages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.ParallelTransformResult" title="Permalink to this definition"></a></dt>
+<dd><p>Results of applying the transform function to a batch
+of messages in parallel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>next_index_to_process</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>valid_messages_transformed</strong> (<a class="reference internal" href="#arroyo.processing.strategies.transform.MessageBatch" title="arroyo.processing.strategies.transform.MessageBatch"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageBatch</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TTransformed</span></code>)]) – </p></li>
+<li><p><strong>invalid_messages</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MutableSequence</span></code>[<a class="reference internal" href="dlq.html#arroyo.processing.strategies.dead_letter_queue.InvalidMessage" title="arroyo.processing.strategies.dead_letter_queue.invalid_messages.InvalidMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">InvalidMessage</span></code></a>]) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ParallelTransformResult.invalid_messages">
+<span class="sig-name descname"><span class="pre">invalid_messages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">MutableSequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dlq.html#arroyo.processing.strategies.dead_letter_queue.InvalidMessage" title="arroyo.processing.strategies.dead_letter_queue.invalid_messages.InvalidMessage"><span class="pre">InvalidMessage</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#arroyo.processing.strategies.transform.ParallelTransformResult.invalid_messages" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ParallelTransformResult.next_index_to_process">
+<span class="sig-name descname"><span class="pre">next_index_to_process</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#arroyo.processing.strategies.transform.ParallelTransformResult.next_index_to_process" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ParallelTransformResult.valid_messages_transformed">
+<span class="sig-name descname"><span class="pre">valid_messages_transformed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#arroyo.processing.strategies.transform.MessageBatch" title="arroyo.processing.strategies.transform.MessageBatch"><span class="pre">MessageBatch</span></a><span class="p"><span class="pre">[</span></span><span class="pre">TTransformed</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#arroyo.processing.strategies.transform.ParallelTransformResult.valid_messages_transformed" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ParallelTransformStep">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.transform.</span></span><span class="sig-name descname"><span class="pre">ParallelTransformStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_processes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_batch_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_block_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_block_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.ParallelTransformStep" title="Permalink to this definition"></a></dt>
+<dd><p>Caution: MessageRejected is not properly handled by the ParallelTransform step. Exercise
+caution if chaining this step before a strategy like <cite>ProduceAndCommit</cite> which raises
+MessageRejected in order to apply backpressure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]], <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TTransformed</span></code>)]) – </p></li>
+<li><p><strong>next_step</strong> (<a class="reference internal" href="#arroyo.processing.strategies.abstract.ProcessingStrategy" title="arroyo.processing.strategies.abstract.ProcessingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingStrategy</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TTransformed</span></code>)]) – </p></li>
+<li><p><strong>num_processes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>max_batch_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>max_batch_time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – </p></li>
+<li><p><strong>input_block_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>output_block_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>initializer</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]]) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ParallelTransformStep.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.ParallelTransformStep.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close this instance. No more messages should be accepted by the
+instance after this method has been called.</p>
+<p>This method should not block. Once this strategy instance has
+finished processing (or discarded) all messages that were submitted
+prior to this method being called, the strategy should commit its
+partition offsets and release any resources that will no longer be
+used (threads, processes, sockets, files, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ParallelTransformStep.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.ParallelTransformStep.join" title="Permalink to this definition"></a></dt>
+<dd><p>Block until the processing strategy has completed all previously
+submitted work, or the provided timeout has been reached. This method
+should be called after <code class="docutils literal notranslate"><span class="pre">close</span></code> to provide a graceful shutdown.</p>
+<p>This method is called synchronously by the stream processor during
+assignment revocation, and blocks the assignment from being released
+until this function exits, allowing any work in progress to be
+completed and committed before the continuing the rebalancing
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ParallelTransformStep.poll">
+<span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.ParallelTransformStep.poll" title="Permalink to this definition"></a></dt>
+<dd><p>Poll the processor to check on the status of asynchronous tasks or
+perform other scheduled work.</p>
+<p>This method is called on each consumer loop iteration, so this method
+should not be used to perform work that may block for a significant
+amount of time and block the progress of the consumer or exceed the
+consumer poll interval timeout.</p>
+<p>This method may raise exceptions that were thrown by asynchronous
+tasks since the previous call to <code class="docutils literal notranslate"><span class="pre">poll</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ParallelTransformStep.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.ParallelTransformStep.submit" title="Permalink to this definition"></a></dt>
+<dd><p>Submit a message for processing.</p>
+<p>Messages may be processed synchronously or asynchronously, depending
+on the implementation of the processing strategy. Callers of this
+method should not assume that this method returning successfully
+implies that the message was successfully processed.</p>
+<p>If the processing strategy is unable to accept a message (due to it
+being at or over capacity, for example), this method will raise a
+<code class="docutils literal notranslate"><span class="pre">MessageRejected</span></code> exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ParallelTransformStep.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.ParallelTransformStep.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Close the processing strategy immediately, abandoning any work in
+progress. No more messages should be accepted by the instance after
+this method has been called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.TransformStep">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.transform.</span></span><span class="sig-name descname"><span class="pre">TransformStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.TransformStep" title="Permalink to this definition"></a></dt>
+<dd><p>Transforms a message and submits the transformed value to the next
+processing step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]], <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TTransformed</span></code>)]) – </p></li>
+<li><p><strong>next_step</strong> (<a class="reference internal" href="#arroyo.processing.strategies.abstract.ProcessingStrategy" title="arroyo.processing.strategies.abstract.ProcessingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingStrategy</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TTransformed</span></code>)]) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.TransformStep.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.TransformStep.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close this instance. No more messages should be accepted by the
+instance after this method has been called.</p>
+<p>This method should not block. Once this strategy instance has
+finished processing (or discarded) all messages that were submitted
+prior to this method being called, the strategy should commit its
+partition offsets and release any resources that will no longer be
+used (threads, processes, sockets, files, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.TransformStep.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.TransformStep.join" title="Permalink to this definition"></a></dt>
+<dd><p>Block until the processing strategy has completed all previously
+submitted work, or the provided timeout has been reached. This method
+should be called after <code class="docutils literal notranslate"><span class="pre">close</span></code> to provide a graceful shutdown.</p>
+<p>This method is called synchronously by the stream processor during
+assignment revocation, and blocks the assignment from being released
+until this function exits, allowing any work in progress to be
+completed and committed before the continuing the rebalancing
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.TransformStep.poll">
+<span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.TransformStep.poll" title="Permalink to this definition"></a></dt>
+<dd><p>Poll the processor to check on the status of asynchronous tasks or
+perform other scheduled work.</p>
+<p>This method is called on each consumer loop iteration, so this method
+should not be used to perform work that may block for a significant
+amount of time and block the progress of the consumer or exceed the
+consumer poll interval timeout.</p>
+<p>This method may raise exceptions that were thrown by asynchronous
+tasks since the previous call to <code class="docutils literal notranslate"><span class="pre">poll</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.TransformStep.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.TransformStep.submit" title="Permalink to this definition"></a></dt>
+<dd><p>Submit a message for processing.</p>
+<p>Messages may be processed synchronously or asynchronously, depending
+on the implementation of the processing strategy. Callers of this
+method should not assume that this method returning successfully
+implies that the message was successfully processed.</p>
+<p>If the processing strategy is unable to accept a message (due to it
+being at or over capacity, for example), this method will raise a
+<code class="docutils literal notranslate"><span class="pre">MessageRejected</span></code> exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.TransformStep.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.TransformStep.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Close the processing strategy immediately, abandoning any work in
+progress. No more messages should be accepted by the instance after
+this method has been called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.ValueTooLarge">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.transform.</span></span><span class="sig-name descname"><span class="pre">ValueTooLarge</span></span><a class="headerlink" href="#arroyo.processing.strategies.transform.ValueTooLarge" title="Permalink to this definition"></a></dt>
+<dd><p>Raised when a value is too large to be written to a shared memory block.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.parallel_transform_worker_apply">
+<span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.transform.</span></span><span class="sig-name descname"><span class="pre">parallel_transform_worker_apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_block</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.parallel_transform_worker_apply" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]], <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TTransformed</span></code>)]) – </p></li>
+<li><p><strong>input_batch</strong> (<a class="reference internal" href="#arroyo.processing.strategies.transform.MessageBatch" title="arroyo.processing.strategies.transform.MessageBatch"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageBatch</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p></li>
+<li><p><strong>output_block</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SharedMemory</span></code>) – </p></li>
+<li><p><strong>start_index</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#arroyo.processing.strategies.transform.ParallelTransformResult" title="arroyo.processing.strategies.transform.ParallelTransformResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelTransformResult</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TTransformed</span></code>)]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.transform.parallel_transform_worker_initializer">
+<span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.transform.</span></span><span class="sig-name descname"><span class="pre">parallel_transform_worker_initializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_initialize_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.transform.parallel_transform_worker_initializer" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>custom_initialize_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-arroyo.processing.strategies.filter">
+<span id="filters"></span><h2>Filters<a class="headerlink" href="#module-arroyo.processing.strategies.filter" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.filter.FilterStep">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.filter.</span></span><span class="sig-name descname"><span class="pre">FilterStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.filter.FilterStep" title="Permalink to this definition"></a></dt>
+<dd><p>Determines if a message should be submitted to the next processing step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]], <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – </p></li>
+<li><p><strong>next_step</strong> (<a class="reference internal" href="#arroyo.processing.strategies.abstract.ProcessingStrategy" title="arroyo.processing.strategies.abstract.ProcessingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingStrategy</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.filter.FilterStep.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.filter.FilterStep.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close this instance. No more messages should be accepted by the
+instance after this method has been called.</p>
+<p>This method should not block. Once this strategy instance has
+finished processing (or discarded) all messages that were submitted
+prior to this method being called, the strategy should commit its
+partition offsets and release any resources that will no longer be
+used (threads, processes, sockets, files, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.filter.FilterStep.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.filter.FilterStep.join" title="Permalink to this definition"></a></dt>
+<dd><p>Block until the processing strategy has completed all previously
+submitted work, or the provided timeout has been reached. This method
+should be called after <code class="docutils literal notranslate"><span class="pre">close</span></code> to provide a graceful shutdown.</p>
+<p>This method is called synchronously by the stream processor during
+assignment revocation, and blocks the assignment from being released
+until this function exits, allowing any work in progress to be
+completed and committed before the continuing the rebalancing
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.filter.FilterStep.poll">
+<span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.filter.FilterStep.poll" title="Permalink to this definition"></a></dt>
+<dd><p>Poll the processor to check on the status of asynchronous tasks or
+perform other scheduled work.</p>
+<p>This method is called on each consumer loop iteration, so this method
+should not be used to perform work that may block for a significant
+amount of time and block the progress of the consumer or exceed the
+consumer poll interval timeout.</p>
+<p>This method may raise exceptions that were thrown by asynchronous
+tasks since the previous call to <code class="docutils literal notranslate"><span class="pre">poll</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.filter.FilterStep.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.filter.FilterStep.submit" title="Permalink to this definition"></a></dt>
+<dd><p>Submit a message for processing.</p>
+<p>Messages may be processed synchronously or asynchronously, depending
+on the implementation of the processing strategy. Callers of this
+method should not assume that this method returning successfully
+implies that the message was successfully processed.</p>
+<p>If the processing strategy is unable to accept a message (due to it
+being at or over capacity, for example), this method will raise a
+<code class="docutils literal notranslate"><span class="pre">MessageRejected</span></code> exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.filter.FilterStep.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.filter.FilterStep.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Close the processing strategy immediately, abandoning any work in
+progress. No more messages should be accepted by the instance after
+this method has been called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="collectors">
+<h2>Collectors<a class="headerlink" href="#collectors" title="Permalink to this heading"></a></h2>
+<p>Accumulate messages in  abuffer and execute an operation on the batch when full.</p>
+<span class="target" id="module-arroyo.processing.strategies.collect"></span><dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.Batch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.collect.</span></span><span class="sig-name descname"><span class="pre">Batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit_function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.Batch" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step</strong> (<a class="reference internal" href="#arroyo.processing.strategies.abstract.ProcessingStrategy" title="arroyo.processing.strategies.abstract.ProcessingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingStrategy</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p></li>
+<li><p><strong>commit_function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Partition</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Position</span></code>]], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.Batch.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.Batch.close" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.Batch.duration">
+<span class="sig-name descname"><span class="pre">duration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.Batch.duration" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.Batch.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.Batch.join" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.Batch.poll">
+<span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.Batch.poll" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.Batch.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.Batch.submit" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.Batch.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.Batch.terminate" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.CollectStep">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.collect.</span></span><span class="sig-name descname"><span class="pre">CollectStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_batch_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.CollectStep" title="Permalink to this definition"></a></dt>
+<dd><p>Collects messages into batches, periodically closing the batch and
+committing the offsets once the batch has successfully been closed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_factory</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[], <a class="reference internal" href="#arroyo.processing.strategies.abstract.ProcessingStrategy" title="arroyo.processing.strategies.abstract.ProcessingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingStrategy</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]]) – </p></li>
+<li><p><strong>commit_function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Partition</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Position</span></code>]], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – </p></li>
+<li><p><strong>max_batch_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>max_batch_time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.CollectStep.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.CollectStep.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close this instance. No more messages should be accepted by the
+instance after this method has been called.</p>
+<p>This method should not block. Once this strategy instance has
+finished processing (or discarded) all messages that were submitted
+prior to this method being called, the strategy should commit its
+partition offsets and release any resources that will no longer be
+used (threads, processes, sockets, files, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.CollectStep.close_and_reset_batch">
+<span class="sig-name descname"><span class="pre">close_and_reset_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.CollectStep.close_and_reset_batch" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.CollectStep.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.CollectStep.join" title="Permalink to this definition"></a></dt>
+<dd><p>Block until the processing strategy has completed all previously
+submitted work, or the provided timeout has been reached. This method
+should be called after <code class="docutils literal notranslate"><span class="pre">close</span></code> to provide a graceful shutdown.</p>
+<p>This method is called synchronously by the stream processor during
+assignment revocation, and blocks the assignment from being released
+until this function exits, allowing any work in progress to be
+completed and committed before the continuing the rebalancing
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.CollectStep.poll">
+<span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.CollectStep.poll" title="Permalink to this definition"></a></dt>
+<dd><p>Poll the processor to check on the status of asynchronous tasks or
+perform other scheduled work.</p>
+<p>This method is called on each consumer loop iteration, so this method
+should not be used to perform work that may block for a significant
+amount of time and block the progress of the consumer or exceed the
+consumer poll interval timeout.</p>
+<p>This method may raise exceptions that were thrown by asynchronous
+tasks since the previous call to <code class="docutils literal notranslate"><span class="pre">poll</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.CollectStep.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.CollectStep.submit" title="Permalink to this definition"></a></dt>
+<dd><p>Submit a message for processing.</p>
+<p>Messages may be processed synchronously or asynchronously, depending
+on the implementation of the processing strategy. Callers of this
+method should not assume that this method returning successfully
+implies that the message was successfully processed.</p>
+<p>If the processing strategy is unable to accept a message (due to it
+being at or over capacity, for example), this method will raise a
+<code class="docutils literal notranslate"><span class="pre">MessageRejected</span></code> exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.CollectStep.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.CollectStep.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Close the processing strategy immediately, abandoning any work in
+progress. No more messages should be accepted by the instance after
+this method has been called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.OffsetRange">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.collect.</span></span><span class="sig-name descname"><span class="pre">OffsetRange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.OffsetRange" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lo</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>hi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>timestamp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.OffsetRange.hi">
+<span class="sig-name descname"><span class="pre">hi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#arroyo.processing.strategies.collect.OffsetRange.hi" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.OffsetRange.lo">
+<span class="sig-name descname"><span class="pre">lo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#arroyo.processing.strategies.collect.OffsetRange.lo" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.OffsetRange.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></em><a class="headerlink" href="#arroyo.processing.strategies.collect.OffsetRange.timestamp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.ParallelCollectStep">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.collect.</span></span><span class="sig-name descname"><span class="pre">ParallelCollectStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_batch_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.ParallelCollectStep" title="Permalink to this definition"></a></dt>
+<dd><p>ParallelCollectStep is similar to CollectStep except it allows the closing and reset of the
+batch to happen in a threadpool. What this allows for is the next batch to start getting
+filled in while the previous batch is still being processed.</p>
+<p>The threadpool will have only 1 worker since we want to perform writes to clickhouse sequentially
+so that kafka offsets are written in order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_factory</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[], <a class="reference internal" href="#arroyo.processing.strategies.abstract.ProcessingStrategy" title="arroyo.processing.strategies.abstract.ProcessingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingStrategy</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]]) – </p></li>
+<li><p><strong>commit_function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Partition</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Position</span></code>]], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – </p></li>
+<li><p><strong>max_batch_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>max_batch_time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – </p></li>
+<li><p><strong>wait_timeout</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.ParallelCollectStep.close_and_reset_batch">
+<span class="sig-name descname"><span class="pre">close_and_reset_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.ParallelCollectStep.close_and_reset_batch" title="Permalink to this definition"></a></dt>
+<dd><p>Closes the current batch in an asynchronous manner. Waits for previous work to be completed before proceeding
+the next one. We can provide the existing batch to the threadpool since the collector is going to make a
+new batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.collect.ParallelCollectStep.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.collect.ParallelCollectStep.join" title="Permalink to this definition"></a></dt>
+<dd><p>Block until the processing strategy has completed all previously
+submitted work, or the provided timeout has been reached. This method
+should be called after <code class="docutils literal notranslate"><span class="pre">close</span></code> to provide a graceful shutdown.</p>
+<p>This method is called synchronously by the stream processor during
+assignment revocation, and blocks the assignment from being released
+until this function exits, allowing any work in progress to be
+completed and committed before the continuing the rebalancing
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-arroyo.processing.strategies.run_task">
+<span id="task-runners"></span><h2>Task Runners<a class="headerlink" href="#module-arroyo.processing.strategies.run_task" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.run_task.RunTaskInThreads">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.run_task.</span></span><span class="sig-name descname"><span class="pre">RunTaskInThreads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processing_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concurrency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_pending_futures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.run_task.RunTaskInThreads" title="Permalink to this definition"></a></dt>
+<dd><p>This strategy can be used to run IO-bound tasks in parallel, then commit offsets.</p>
+<p>The user specifies a processing function (a callable that takes a message). For each message received
+in the submit method, it runs that processing function. Once completed, offsets are committed.
+Note that the return value of the processing function is discarded so this is not an appropriate
+strategy if something else needs to happen after offsets are committed and the function returns.</p>
+<p>Since the processing function will be run in threads, avoid using objects which can be modified
+by different threads or protect it using locks.</p>
+<p>If there are too many pending futures, we MessageRejected will be raised to notify the stream processor
+to slow down.</p>
+<p>On poll we check for completion of futures. If processing is done, we commit the offsetes.
+If an error occured the original exception will be raised.</p>
+<p>Caution: MessageRejected is not properly handled by the ParallelTransform step. Exercise
+caution if chaining this step anywhere after a parallel transform.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>processing_function</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]], <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TOutput</span></code>)]) – </p></li>
+<li><p><strong>concurrency</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>max_pending_futures</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+<li><p><strong>commit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Commit</span></code>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.run_task.RunTaskInThreads.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.run_task.RunTaskInThreads.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close this instance. No more messages should be accepted by the
+instance after this method has been called.</p>
+<p>This method should not block. Once this strategy instance has
+finished processing (or discarded) all messages that were submitted
+prior to this method being called, the strategy should commit its
+partition offsets and release any resources that will no longer be
+used (threads, processes, sockets, files, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.run_task.RunTaskInThreads.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.run_task.RunTaskInThreads.join" title="Permalink to this definition"></a></dt>
+<dd><p>Block until the processing strategy has completed all previously
+submitted work, or the provided timeout has been reached. This method
+should be called after <code class="docutils literal notranslate"><span class="pre">close</span></code> to provide a graceful shutdown.</p>
+<p>This method is called synchronously by the stream processor during
+assignment revocation, and blocks the assignment from being released
+until this function exits, allowing any work in progress to be
+completed and committed before the continuing the rebalancing
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.run_task.RunTaskInThreads.poll">
+<span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.run_task.RunTaskInThreads.poll" title="Permalink to this definition"></a></dt>
+<dd><p>Poll the processor to check on the status of asynchronous tasks or
+perform other scheduled work.</p>
+<p>This method is called on each consumer loop iteration, so this method
+should not be used to perform work that may block for a significant
+amount of time and block the progress of the consumer or exceed the
+consumer poll interval timeout.</p>
+<p>This method may raise exceptions that were thrown by asynchronous
+tasks since the previous call to <code class="docutils literal notranslate"><span class="pre">poll</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.run_task.RunTaskInThreads.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.run_task.RunTaskInThreads.submit" title="Permalink to this definition"></a></dt>
+<dd><p>Submit a message for processing.</p>
+<p>Messages may be processed synchronously or asynchronously, depending
+on the implementation of the processing strategy. Callers of this
+method should not assume that this method returning successfully
+implies that the message was successfully processed.</p>
+<p>If the processing strategy is unable to accept a message (due to it
+being at or over capacity, for example), this method will raise a
+<code class="docutils literal notranslate"><span class="pre">MessageRejected</span></code> exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.run_task.RunTaskInThreads.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.run_task.RunTaskInThreads.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Close the processing strategy immediately, abandoning any work in
+progress. No more messages should be accepted by the instance after
+this method has been called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-arroyo.processing.strategies.produce">
+<span id="producers"></span><h2>Producers<a class="headerlink" href="#module-arroyo.processing.strategies.produce" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.produce.ProduceAndCommit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">arroyo.processing.strategies.produce.</span></span><span class="sig-name descname"><span class="pre">ProduceAndCommit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">producer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_buffer_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.produce.ProduceAndCommit" title="Permalink to this definition"></a></dt>
+<dd><p>This strategy can be used to produce Kafka messages to a destination topic. A typical use
+case could be to consume messages from one topic, apply some transformations and then output
+to another topic.</p>
+<p>For each message received in the submit method, it attempts to produce a single Kafka message
+in a thread. If there are too many pending futures, we MessageRejected will be raised to notify
+stream processor to slow down.</p>
+<p>On poll we check for completion of the produced messages. If the message has been successfully
+produced then the offset is committed. If an error occured the exception will be raised.</p>
+<p>Important: The destination topic is always the <cite>topic</cite> passed into the constructor and not the
+topic being referenced in the message itself (which typically refers to the original topic from
+where the message was consumed from).</p>
+<p>Caution: MessageRejected is not properly handled by the ParallelTransform step. Exercise
+caution if chaining this step anywhere after a parallel transform.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>producer</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Producer</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p></li>
+<li><p><strong>topic</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Topic</span></code>) – </p></li>
+<li><p><strong>commit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Commit</span></code>) – </p></li>
+<li><p><strong>max_buffer_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.produce.ProduceAndCommit.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.produce.ProduceAndCommit.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close this instance. No more messages should be accepted by the
+instance after this method has been called.</p>
+<p>This method should not block. Once this strategy instance has
+finished processing (or discarded) all messages that were submitted
+prior to this method being called, the strategy should commit its
+partition offsets and release any resources that will no longer be
+used (threads, processes, sockets, files, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.produce.ProduceAndCommit.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.produce.ProduceAndCommit.join" title="Permalink to this definition"></a></dt>
+<dd><p>Block until the processing strategy has completed all previously
+submitted work, or the provided timeout has been reached. This method
+should be called after <code class="docutils literal notranslate"><span class="pre">close</span></code> to provide a graceful shutdown.</p>
+<p>This method is called synchronously by the stream processor during
+assignment revocation, and blocks the assignment from being released
+until this function exits, allowing any work in progress to be
+completed and committed before the continuing the rebalancing
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.produce.ProduceAndCommit.poll">
+<span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.produce.ProduceAndCommit.poll" title="Permalink to this definition"></a></dt>
+<dd><p>Poll the processor to check on the status of asynchronous tasks or
+perform other scheduled work.</p>
+<p>This method is called on each consumer loop iteration, so this method
+should not be used to perform work that may block for a significant
+amount of time and block the progress of the consumer or exceed the
+consumer poll interval timeout.</p>
+<p>This method may raise exceptions that were thrown by asynchronous
+tasks since the previous call to <code class="docutils literal notranslate"><span class="pre">poll</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.produce.ProduceAndCommit.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.produce.ProduceAndCommit.submit" title="Permalink to this definition"></a></dt>
+<dd><p>Submit a message for processing.</p>
+<p>Messages may be processed synchronously or asynchronously, depending
+on the implementation of the processing strategy. Callers of this
+method should not assume that this method returning successfully
+implies that the message was successfully processed.</p>
+<p>If the processing strategy is unable to accept a message (due to it
+being at or over capacity, for example), this method will raise a
+<code class="docutils literal notranslate"><span class="pre">MessageRejected</span></code> exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">TPayload</span></code>)]) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="arroyo.processing.strategies.produce.ProduceAndCommit.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#arroyo.processing.strategies.produce.ProduceAndCommit.terminate" title="Permalink to this definition"></a></dt>
+<dd><p>Close the processing strategy immediately, abandoning any work in
+progress. No more messages should be accepted by the instance after
+this method has been called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="architecture.html" class="btn btn-neutral float-left" title="Arroyo Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="offsets.html" class="btn btn-neutral float-right" title="Committing offsets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Sentry Team and Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

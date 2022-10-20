@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arroyo Architecture &mdash; Arroyo  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Processing Strategies" href="strategies.html" />
+    <link rel="prev" title="What is Arroyo for?" href="what_for.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Arroyo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getstarted.html">Getting started with Arroyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="what_for.html">What is Arroyo for?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Arroyo Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#streaming-interface-and-streaming-engine">Streaming Interface and Streaming Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#high-level-strategies">High level strategies</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="strategies.html">Processing Strategies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="offsets.html">Committing offsets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dlq.html">Dead Letter Queue</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Arroyo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Arroyo Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/architecture.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="arroyo-architecture">
+<h1>Arroyo Architecture<a class="headerlink" href="#arroyo-architecture" title="Permalink to this heading"></a></h1>
+<p>Arroyo is a set of high level abstractions to interact with Kafka.
+These are meant to help the developer in writing performant consumers with
+specific delivery guarantees.</p>
+<p>Common problems addressed by Arroyo are guaranteeing at-least-once delivery,
+providing a dead letter queue abstraction, support parallel (multi-processing)
+message processing, etc.</p>
+<p>The library is divided in three layers: the basic Kafka connectivity, the
+streaming engine and the high level abstractions.</p>
+<p>The basic connectivity layer is a simply wrapper around the Confluent python
+library, which is itself based on librdkafka. Besides some cosmetic changes,
+this level provides a Fake in memory broker and consumer to make unit test quick
+to run.</p>
+<p>The streaming engine provides an asynchronous processing interface to write
+consumers. The consumer is written as a pipeline where each segment is an
+asynchronous operation. The streaming engine implements the main consumer loop
+and delgates the processing to the pipeline.</p>
+<p>On top of the streaming engine, the library provides high level abstractions that
+are common when writing Kafka consumers like: <em>map</em>, <em>reduce</em>, <em>filter</em> together
+with some common messaging application patterns like the dead letter queue.</p>
+<section id="streaming-interface-and-streaming-engine">
+<h2>Streaming Interface and Streaming Engine<a class="headerlink" href="#streaming-interface-and-streaming-engine" title="Permalink to this heading"></a></h2>
+<p>A Kafka consumer is built as a pipeline where each segment processess messages in
+an asynchronous way. The Streaming engine provides a message to a segment. The
+segment is not supposed to execute small CPU work in a blocking way, IO in a non
+blocking way, we generally use futures for this, and heavier CPU work on a separate
+process.</p>
+<p>Arroyo provides an interface to implement to write a pipeline segment.
+The segment interface is called <em>ProcessingStrategy</em> and is in
+<a class="reference external" href="https://github.com/getsentry/arroyo/blob/main/arroyo/processing/strategies/abstract.py">this module</a>.
+(TODO: bring the docstrings to the docs and reference that).</p>
+<p>When developing a consumer, in most cases, the developer would not implement
+that interface directly. A higher level abstraction would be used.</p>
+<figure class="align-default">
+<img alt="_images/arroyo_processing.png" src="_images/arroyo_processing.png" />
+</figure>
+<p>The main consumer loop is managed by the <a class="reference external" href="https://github.com/getsentry/arroyo/blob/main/arroyo/processing/processor.py">stream engine</a>.
+These are the phases:</p>
+<ul class="simple">
+<li><p>Poll from the Kafka consumer through the basic library. If a message is there
+proceed or repeat.</p></li>
+<li><p>Submit the message the the first <em>ProcessingStrategy</em>. This is supposed to deliver
+work to do to the strategy. It is not supposed to be a blocking operation. The
+strategy should return very quickly.</p></li>
+<li><p>Poll the strategy to execute work or to deliver the results to the following step
+in the pipeline. Ideally all IO should be done in separate threads and heavy cpu
+work should be done in separate processes so the <em>poll</em> method should check for
+completed work, dispatch to the next step and return. In practice work is executed
+here in a blocking way if the overhead of offloading the work is too high.</p></li>
+</ul>
+<p>The <em>ProcessingStrategy</em> may decide not to take the message and instead apply back-pressure.
+This is done by raising the <em>MessageRejected</em> exception. In this case the streaming
+engine pauses the consumer till the strategy is not ready to take the message.</p>
+<p>The <em>ProcessingStrategy</em> decides when it is time to commit a message. This is done
+through a commit callback provided to the strategy when it is instantiated.</p>
+<p>The streaming engine orchestrates the life cycle of the <em>ProcessingStrategy</em>, thus
+when it thinks it is time to shut the strategy down it would wait for all in flight
+work to be completed and then destroy the strategy.</p>
+<p>There are two scenarios where this can happen:</p>
+<ul class="simple">
+<li><p>The consumer is being terminated.</p></li>
+<li><p>A rebalancing happened. A rebalancing revokes partitions and assigns new ones.
+After a rebalancing is complete it is impossible to commit a message from a partition
+that was revoked so, in order to ensure the consumer behaves in a consistent way,
+upon rebalancing, the streaming engine destroys the strategy and builds a new one.
+This allows the strategy to complete all in flight work before being terminated.</p></li>
+</ul>
+</section>
+<section id="high-level-strategies">
+<h2>High level strategies<a class="headerlink" href="#high-level-strategies" title="Permalink to this heading"></a></h2>
+<p>Most consumers follow the same few patterns so Arroyo provides abstractions that
+are based on the <em>ProcessingStrategy</em> but that are simpler to implement for the
+common use cases.</p>
+<p>Common examples are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">filter,</span> <span class="pre">map</span> <span class="pre">and</span> <span class="pre">forward</span></code>. This type of consumer inspect a message, decides
+whether to process it or discard it, transform its content and produces the result
+on a new topic. In this case Arroyo provides three implementations of the
+<em>ProcessingStrategy</em>: <em>filter</em>, <em>transform</em>, <em>produce</em>. The developer only needs
+to wire them together and provide the map and filtering logic.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">consume,</span> <span class="pre">apply</span> <span class="pre">side</span> <span class="pre">effects,</span> <span class="pre">produce</span></code>. This is a variation of the one above.
+In this case the transform operation can have side effects like storing the content
+of the message somewhere.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">high</span> <span class="pre">throughput</span> <span class="pre">cpu</span> <span class="pre">intensive</span> <span class="pre">transform</span></code>. The python GIL does not allow cpu intensive
+work to take advantage of parallelism. Arroyo provides an implementation of the <em>map</em>
+pattern that batches messages and dispatch the work to separate processes via shared
+memory. This is largely transparent to the developers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">map,</span> <span class="pre">reduce</span> <span class="pre">and</span> <span class="pre">store</span></code>. The reduce function is carried out by the <em>Collector</em>, which
+batches messages and executes some logic with side effects when the batch is full.
+This is a typical way to write messages on a storages in batches to reduce the
+round trips.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dead</span> <span class="pre">letter</span> <span class="pre">queue</span></code>. It is up to the developer to decide what to do with invalid
+messages. One common option is to produce them on a dead letter topic. Arroyo provides
+a strategy for that. The application developer writes the consumer logic, the dead
+letter queue strategy wraps this logic and intercepts <em>InvalidMessage</em> exceptions
+sending the content to a dedicated topic.</p></li>
+</ul>
+<p>All high lkevel strategies are in <a class="reference external" href="https://github.com/getsentry/arroyo/tree/main/arroyo/processing/strategies">the strategies module</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="what_for.html" class="btn btn-neutral float-left" title="What is Arroyo for?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="strategies.html" class="btn btn-neutral float-right" title="Processing Strategies" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Sentry Team and Contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
